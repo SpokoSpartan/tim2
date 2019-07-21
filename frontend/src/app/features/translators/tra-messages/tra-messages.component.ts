@@ -69,10 +69,6 @@ export class TraMessagesComponent implements OnInit {
 	addNewTranslation(message: MessageForTranslator) {
 		this.selectedMessage = message;
 		this.selectedRowIndex = message.id;
-
-		if (this.showForm === false) {
-			this.showForm = true;
-		}
 	}
 
 	editTranslation(message: MessageForTranslator) {

@@ -5,13 +5,13 @@
 		</mat-form-field>
 	</div>
 	<div>
-		<mat-checkbox  [(ngModel)]="missing" (change)="filterMessages()">Missing</mat-checkbox>
+		<mat-checkbox [(ngModel)]="missing" (change)="filterMessages()">Missing</mat-checkbox>
 	</div>
 	<div>
-		<mat-checkbox  [(ngModel)]="outdated" (change)="filterMessages()">Outdated</mat-checkbox>
+		<mat-checkbox [(ngModel)]="outdated" (change)="filterMessages()">Outdated</mat-checkbox>
 	</div>
 	<div>
-		<mat-checkbox  [(ngModel)]="invalid"  (change)="filterMessages()">Invalid</mat-checkbox>
+		<mat-checkbox [(ngModel)]="invalid" (change)="filterMessages()">Invalid</mat-checkbox>
 	</div>
 	<span class="spacer"></span>
 	<div>
@@ -127,6 +127,7 @@
 							</p>
 						</div>
 
+
 						<p *ngIf=" row.translation !== null">
 							<strong>Last updated: </strong> {{row.translation.updateDate | date:'dd.MM.yyyy HH:mm' }}
 						</p>
@@ -136,6 +137,19 @@
 						</p>
 						<p *ngIf="row.translation === null" class="warning">
 							<strong>Translation: </strong> none.
+							<button mat-button color="primary"
+									(click)="addTranslation(row)"
+									matTooltip="Add new translation"
+									matTooltipClass="tooltip-font">
+								<mat-icon>add</mat-icon>
+								Add translation
+							</button>
+
+						</p>
+						<p>
+							<mat-form-field>
+								<textarea matInput placeholder="Translation"></textarea>
+							</mat-form-field>
 						</p>
 						<p *ngIf="row.substitute">
 							<strong>Substitute from locale {{row.substitute.locale}}:</strong> {{row.substitute.content}}

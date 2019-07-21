@@ -54,9 +54,6 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (this.selectedLocale !== null) {
-			if (!this.displayedColumns.includes('actions')) {
-				this.displayedColumns = ['index', 'content', 'existing', 'upToDate', 'valid', 'actions'];
-			}
 			this.getMessages();
 			this.dataSource.filter = '{';
 		}
@@ -134,7 +131,6 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	filterMessages() {
 		this.dataSource.filter = '{';
 	}
-
 
 	async invalidateTranslation(message: any) {
 		this.invalidateTranslationEvent.emit(message);

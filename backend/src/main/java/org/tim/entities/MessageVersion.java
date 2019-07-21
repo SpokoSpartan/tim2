@@ -4,11 +4,11 @@ package org.tim.entities;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -43,4 +43,14 @@ public class MessageVersion {
 
 	@NotNull
 	Long messageId;
+
+	@PrePersist
+	public void prePersist() {
+		String username = "DEFAULT";
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+			username = authentication.getName();
+		}
+		this.createdBy = username;
+	}
 }
