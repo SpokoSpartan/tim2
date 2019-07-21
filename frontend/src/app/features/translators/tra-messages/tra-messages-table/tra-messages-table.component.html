@@ -146,11 +146,11 @@
 							</button>
 
 						</p>
-						<p>
-							<mat-form-field>
-								<textarea matInput placeholder="Translation"></textarea>
-							</mat-form-field>
-						</p>
+						<div *ngIf="showForm">
+							<app-tra-messages-form></app-tra-messages-form>
+						</div>
+
+
 						<p *ngIf="row.substitute">
 							<strong>Substitute from locale {{row.substitute.locale}}:</strong> {{row.substitute.content}}
 						</p>

@@ -29,6 +29,7 @@ import { DevHistoryMessagesComponent } from './features/developers/dev-history-m
 import { ViewsModule } from './views/views.module';
 import { SharedModule } from './shared/shared.module';
 import { AggregateInfoComponent } from './features/developers/aggregate-info/aggregate-info.component';
+import { TraMessagesFormComponent } from './features/translators/tra-messages-form/tra-messages-form.component';
 
 @NgModule({
 	declarations: [
@@ -45,7 +46,8 @@ import { AggregateInfoComponent } from './features/developers/aggregate-info/agg
 		DevProjectsTableComponent,
 		DevHistoryTranslationsComponent,
 		DevHistoryMessagesComponent,
-		AggregateInfoComponent
+		AggregateInfoComponent,
+		TraMessagesFormComponent
 	],
 	imports: [
 		RouterModule.forRoot(routes),

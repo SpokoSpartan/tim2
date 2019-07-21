@@ -4,7 +4,6 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Project } from '../../../../shared/types/entities/Project';
 import { Message } from '../../../../shared/types/entities/Message';
 import { MessageForTranslator } from '../../../../shared/types/DTOs/output/MessageForTranslator';
-import { log } from 'util';
 
 @Component({
 	selector: 'app-tra-messages-table',
@@ -39,6 +38,7 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	displayedColumns: string[] = ['index', 'content', 'existing', 'upToDate', 'valid'];
 	@ViewChild(MatSort, { static: true }) sort: MatSort;
 	isLoadingResults = false;
+	showForm = false;
 
 	expandedRow = null;
 	missing = false;
@@ -66,11 +66,13 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	}
 
 	addTranslation(message: any) {
+		this.showForm = true;
 		this.selectedRowIndex = message.id;
 		this.addTranslationEvent.emit(message);
 	}
 
 	updateTranslation(message: any) {
+		this.showForm = true;
 		this.selectedRowIndex = message.id;
 		this.editTranslationEvent.emit(message);
 	}
