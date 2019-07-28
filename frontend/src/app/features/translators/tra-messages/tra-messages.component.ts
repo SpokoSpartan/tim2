@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { RestService } from '../../../shared/services/rest/rest.service';
 import { SnackbarService } from '../../../shared/services/snackbar-service/snackbar.service';
 import { UtilsService } from '../../../shared/services/utils-service/utils.service';
@@ -7,33 +7,29 @@ import { ProjectsStoreService } from '../../../stores/projects-store/projects-st
 import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog/confirmation-dialog.service';
 import { Message } from '../../../shared/types/entities/Message';
 import { Project } from '../../../shared/types/entities/Project';
-import { MessageForTranslator } from '../../../shared/types/DTOs/output/MessageForTranslator';
 import { TranslationUpdateDTO } from '../../../shared/types/DTOs/input/TranslationUpdateDTO';
 import { TranslationCreateDTO } from '../../../shared/types/DTOs/input/TranslationCreateDTO';
+import { TranFormService } from './tra-form-service/tran-form.service';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-tra-messages',
 	templateUrl: './tra-messages.component.html',
 	styleUrls: ['./tra-messages.component.scss']
 })
-export class TraMessagesComponent implements OnInit {
-
-	messageParams: FormGroup;
-	formMode = 'Add';
-	toUpdate: any = null;
-	showForm = false;
+export class TraMessagesComponent implements OnInit, OnDestroy {
 
 	isLoadingResults = true;
-	selectedRowIndex = -1;
 
 	projects: Project[] = [];
 	messages: Message[] = [];
 
 	selectedProject = null;
 	selectedLocale: string = null;
-	selectedMessage = null;
 	availableLocales: any[] = [];
-	private selectedTranslationId: number;
+
+	submitFormSub: Subscription;
+	content: any;
 
 	constructor(private formBuilder: FormBuilder,
 				private cd: ChangeDetectorRef,
@@ -42,85 +38,65 @@ export class TraMessagesComponent implements OnInit {
 				private utils: UtilsService,
 				private projectsStore: ProjectsStoreService,
 				private confirmService: ConfirmationDialogService,
-				private projectStoreService: ProjectsStoreService) {
+				private projectStoreService: ProjectsStoreService,
+				private tranFormService: TranFormService) {
 		this.selectedProject = this.projectStoreService.getSelectedProject();
 	}
 
 	ngOnInit() {
-		this.initProjectForm();
 		this.getProjects();
 		this.getMessagesForTranslator();
-	}
-
-	initProjectForm() {
-		this.messageParams = this.formBuilder.group({
-			content: ['', [Validators.required]]
+		this.submitFormSub = this.tranFormService.submitForm$
+		.subscribe((mode) => {
+			this.submitForm(mode);
 		});
 	}
 
-	createTranslation(params: any) {
-		if (!this.toUpdate) {
-			this.addTranslation(new TranslationCreateDTO(params.value.content, this.selectedLocale));
-		} else {
-			this.updateTranslation(new TranslationUpdateDTO(params.value.content));
+	submitForm(mode: any) {
+		if (mode === 'Add') {
+			this.addTranslation(new TranslationCreateDTO(this.tranFormService.content, this.selectedLocale));
+		} else if (mode === 'Update') {
+			this.updateTranslation(new TranslationUpdateDTO(this.tranFormService.content));
 		}
-	}
-
-	addNewTranslation(message: MessageForTranslator) {
-		this.selectedMessage = message;
-		this.selectedRowIndex = message.id;
-	}
-
-	editTranslation(message: MessageForTranslator) {
-		this.selectedTranslationId = message.translation.id;
-		this.selectedMessage = message;
-		this.selectedRowIndex = message.id;
-
-		if (this.showForm === false) {
-			this.showForm = true;
-		}
-
-		this.messageParams.patchValue({
-			content: message.translation.content,
-		});
-
-		this.toUpdate = message;
-		this.formMode = 'Update';
 	}
 
 	async addTranslation(body) {
-		await this.http.save('translation/create' + '?messageId=' + this.selectedMessage.id, body).subscribe((response) => {
+		await this.http.save('translation/create' +
+			'?messageId=' + this.tranFormService.selectedMessageId, body)
+		.subscribe((response) => {
 			if (response !== null) {
 				this.getMessagesForTranslator();
+				this.tranFormService.emitFormSubmitted(true);
 				this.snackbar.snackSuccess('Success!', 'OK');
-				this.selectedRowIndex = -1;
-				this.clearForm();
 			} else {
 				this.snackbar.snackError('Error', 'OK');
+				this.tranFormService.emitFormSubmitted(false);
 			}
 		}, (error) => {
 			this.snackbar.snackError(error.error.message, 'OK');
+			this.tranFormService.emitFormSubmitted(false);
 		});
 	}
 
 	async updateTranslation(body) {
-		await this.http.update('translation/update/' + this.selectedTranslationId + '?messageId=' + this.selectedMessage.id, body).subscribe((response) => {
+		await this.http.update(
+			'translation/update/' + this.tranFormService.selectedTranslationId +
+			'?messageId=' + this.tranFormService.selectedMessageId, body)
+		.subscribe((response) => {
 			if (response !== null) {
-				this.toUpdate = null;
 				this.getMessagesForTranslator();
-				this.formMode = 'Add';
+				this.tranFormService.emitFormSubmitted(true);
 				this.snackbar.snackSuccess('Success!', 'OK');
-				this.selectedRowIndex = -1;
-				this.clearForm();
 			} else {
 				this.snackbar.snackError('Error', 'OK');
+				this.tranFormService.emitFormSubmitted(false);
 			}
 		}, (error) => {
 			this.snackbar.snackError(error.error.message, 'OK');
+			this.tranFormService.emitFormSubmitted(false);
 		});
-		this.toUpdate = null;
-	}
 
+	}
 
 	async getProjects() {
 		this.isLoadingResults = true;
@@ -129,7 +105,6 @@ export class TraMessagesComponent implements OnInit {
 	}
 
 	changeProject(value) {
-		this.cancelUpdate();
 		this.selectedProject = value;
 		this.projectStoreService.setSelectedProject(value);
 		this.getMessagesForTranslator();
@@ -147,12 +122,6 @@ export class TraMessagesComponent implements OnInit {
 			this.messages = [].concat(this.messages);
 			this.isLoadingResults = false;
 		}
-		// else if (this.selectedProject) {
-		// 	this.isLoadingResults = true;
-		// 	this.messages = await this.http.getAll('message/translator/getByProject/' + this.selectedProject.id);
-		// 	this.messages = [].concat(this.messages);
-		// 	this.isLoadingResults = false;
-		// }
 	}
 
 	async invalidateTranslation(message: any) {
@@ -183,20 +152,8 @@ export class TraMessagesComponent implements OnInit {
 		}
 	}
 
-	cancelUpdate() {
-		this.selectedMessage = null;
-		this.toUpdate = null;
-		this.selectedRowIndex = -1;
-		this.formMode = 'Add';
-		this.showForm = false;
-		this.clearForm();
-	}
-
-	clearForm() {
-		this.messageParams.reset();
-		this.messageParams.markAsPristine();
-		this.messageParams.markAsUntouched();
-		this.cd.markForCheck();
+	ngOnDestroy() {
+		this.submitFormSub.unsubscribe();
 	}
 
 }

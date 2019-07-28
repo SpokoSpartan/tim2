@@ -4,6 +4,8 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Project } from '../../../../shared/types/entities/Project';
 import { Message } from '../../../../shared/types/entities/Message';
 import { MessageForTranslator } from '../../../../shared/types/DTOs/output/MessageForTranslator';
+import { TranFormService } from '../tra-form-service/tran-form.service';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-tra-messages-table',
@@ -27,9 +29,6 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	@Input() selectedProject: Project;
 	@Input() selectedLocale: string = null;
 	@Input() messages: Message[] = [];
-	@Output() sendSelectedLocale = new EventEmitter<any>();
-	@Output() addTranslationEvent = new EventEmitter<any>();
-	@Output() editTranslationEvent = new EventEmitter<any>();
 	@Output() invalidateTranslationEvent = new EventEmitter<any>();
 
 	// table
@@ -45,11 +44,17 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	outdated = false;
 	invalid = false;
 
-	constructor() {
+	formSubmittedSub: Subscription;
+
+	constructor(private tranFormService: TranFormService) {
 	}
 
 	ngOnInit() {
 		this.getMessages();
+		this.formSubmittedSub = this.tranFormService.formSubmitted$
+		.subscribe((message) => {
+			this.formSubmitted(message);
+		});
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -65,16 +70,27 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 		this.isLoadingResults = false;
 	}
 
-	addTranslation(message: any) {
+	addTranslation(message: MessageForTranslator) {
 		this.showForm = true;
 		this.selectedRowIndex = message.id;
-		this.addTranslationEvent.emit(message);
+		this.tranFormService.setSelectedMessageId(message.id);
+		this.tranFormService.emitAddTranslation(message);
 	}
 
-	updateTranslation(message: any) {
+	updateTranslation(message: MessageForTranslator) {
 		this.showForm = true;
+		this.tranFormService.setSelectedMessageId(message.id);
+		this.tranFormService.setSelectedTranslationId(message.translation.id);
 		this.selectedRowIndex = message.id;
-		this.editTranslationEvent.emit(message);
+	}
+
+	async invalidateTranslation(message: MessageForTranslator) {
+		this.invalidateTranslationEvent.emit(message);
+	}
+
+	cancelForm() {
+		this.selectedRowIndex = -1;
+		this.tranFormService.setSelectedMessageId(-1);
 	}
 
 	applyFilter(filterValue: string) {
@@ -134,10 +150,6 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 		this.dataSource.filter = '{';
 	}
 
-	async invalidateTranslation(message: any) {
-		this.invalidateTranslationEvent.emit(message);
-	}
-
 	isTranslationOutdated(message: MessageForTranslator): boolean {
 		if (message.translation !== null) {
 			return message.updateDate > message.translation.updateDate;
@@ -146,4 +158,8 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 		}
 	}
 
+	private formSubmitted(message: any) {
+		this.showForm = false;
+		this.selectedRowIndex = -1;
+	}
 }

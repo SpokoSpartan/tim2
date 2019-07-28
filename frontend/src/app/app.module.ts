@@ -29,7 +29,7 @@ import { DevHistoryMessagesComponent } from './features/developers/dev-history-m
 import { ViewsModule } from './views/views.module';
 import { SharedModule } from './shared/shared.module';
 import { AggregateInfoComponent } from './features/developers/aggregate-info/aggregate-info.component';
-import { TraMessagesFormComponent } from './features/translators/tra-messages-form/tra-messages-form.component';
+import { TraMessagesFormComponent } from './features/translators/tra-messages/tra-messages-form/tra-messages-form.component';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthInterceptor } from './core/AuthInterceptor';
 

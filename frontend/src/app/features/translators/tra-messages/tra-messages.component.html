@@ -49,10 +49,6 @@
 <div fxLayout="row" fxLayoutAlign="space-evenly start">
 	<div class="app-table-wrapper">
 		<app-tra-messages-table [messages]="messages"
-								[selectedRowIndex]="selectedRowIndex"
-								(addTranslationEvent)="addNewTranslation($event)"
-								(editTranslationEvent)="editTranslation($event)"
-								(sendSelectedLocale)="selectLocale($event)"
 								(invalidateTranslationEvent)="invalidateTranslation($event)"
 								[selectedProject]="selectedProject"
 								[selectedLocale]="selectedLocale"

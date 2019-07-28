@@ -71,53 +71,53 @@
 		</ng-container>
 
 		<ng-container matColumnDef="messageDetails">
-			<td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
-				<div class="message-detail" [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'">
+			<td mat-cell *matCellDef="let message" [attr.colspan]="displayedColumns.length">
+				<div class="message-detail" [@detailExpand]="message == expandedRow ? 'expanded' : 'collapsed'">
 					<div class="padding-inside">
 
 						<p>
-							<strong>Key:</strong> {{row.key}}
+							<strong>Key:</strong> {{message.key}}
 						</p>
 						<p>
-							<strong>Update date:</strong> {{row.updateDate | date:'dd.MM.yyyy HH:mm'}}
+							<strong>Update date:</strong> {{message.updateDate | date:'dd.MM.yyyy HH:mm'}}
 						</p>
 
 						<p>
-							<strong>Content:</strong> {{row.content}}
+							<strong>Content:</strong> {{message.content}}
 						</p>
 						<p>
-							<strong>Description: </strong> {{row.description}}
+							<strong>Description: </strong> {{message.description}}
 						</p>
 
 						<hr>
 
-						<div *ngIf="row.translation !== null && !row.translation.isValid">
+						<div *ngIf="message.translation !== null && !message.translation.isValid">
 							<p class="warning">
 								Translation has been invalidated.
 							</p>
 						</div>
 
-						<div *ngIf="isTranslationOutdated(row)">
+						<div *ngIf="isTranslationOutdated(message)">
 							<p class="warning">
 								Translation is outdated.
 							</p>
 							<p>
-								<strong>Previous message content: </strong> {{row.previousMessageContent}}
+								<strong>Previous message content: </strong> {{message.previousMessageContent}}
 							</p>
 						</div>
 
 
-						<p *ngIf=" row.translation !== null">
-							<strong>Last updated: </strong> {{row.translation.updateDate | date:'dd.MM.yyyy HH:mm' }}
+						<p *ngIf=" message.translation !== null">
+							<strong>Last updated: </strong> {{message.translation.updateDate | date:'dd.MM.yyyy HH:mm' }}
 						</p>
 
-						<p *ngIf="row.translation !== null && row.translation !== undefined">
-							<strong>Translation: </strong> {{row.translation.content}}
+						<p *ngIf="message.translation !== null && message.translation !== undefined">
+							<strong>Translation: </strong> {{message.translation.content}}
 						</p>
-						<p *ngIf="row.translation === null" class="warning">
+						<p *ngIf="message.translation === null" class="warning">
 							<strong>Translation: </strong> none.
 							<button mat-button color="primary"
-									(click)="addTranslation(row)"
+									(click)="addTranslation(message)"
 									matTooltip="Add new translation"
 									matTooltipClass="tooltip-font">
 								<mat-icon>add</mat-icon>
@@ -125,21 +125,21 @@
 							</button>
 
 						</p>
-						<div *ngIf="showForm">
-							<app-tra-messages-form></app-tra-messages-form>
+						<div>
+							<app-tra-messages-form (closeFormEvent)="cancelForm()"  *ngIf="showForm && this.selectedRowIndex === message.id"></app-tra-messages-form>
 						</div>
-						<button mat-button (click)="updateTranslation(row)" *ngIf="selectedLocale && row.translation" matTooltip="Update translation" matTooltipClass="tooltip-font">
+						<button mat-button (click)="updateTranslation(message)" *ngIf="selectedLocale && message.translation" matTooltip="Update translation" matTooltipClass="tooltip-font">
 							<mat-icon>update</mat-icon>
 							Update
 						</button>
-						<button mat-button color="warn" (click)="invalidateTranslation(row)" *ngIf="selectedLocale && row.translation && row.translation.isValid" matTooltip="Invalidate translation if it's incorrect" matTooltipClass="tooltip-font">
+						<button mat-button color="warn" (click)="invalidateTranslation(message)" *ngIf="selectedLocale && message.translation && message.translation.isValid" matTooltip="Invalidate translation if it's incorrect" matTooltipClass="tooltip-font">
 							<mat-icon>highlight_off</mat-icon>
 							Invalidate
 						</button>
 
 
-						<p *ngIf="row.substitute">
-							<strong>Substitute from locale {{row.substitute.locale}}:</strong> {{row.substitute.content}}
+						<p *ngIf="message.substitute">
+							<strong>Substitute from locale {{message.substitute.locale}}:</strong> {{message.substitute.content}}
 						</p>
 
 					</div>
