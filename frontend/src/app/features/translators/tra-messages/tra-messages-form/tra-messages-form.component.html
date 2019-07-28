@@ -15,7 +15,7 @@
 		<button class="button-spacer" mat-raised-button color="accent" type="button" [disabled]="!translationParams.valid" (click)="submitForm(translationParams)">
 			{{formMode}}
 		</button>
-		<button class="button-spacer" mat-button color="warn" type="button" (click)="cancelUpdate()">
+		<button class="button-spacer" mat-button color="warn" type="button" (click)="closeForm()">
 			Cancel
 		</button>
 		<button mat-raised-button color="warn" type="button" (click)="clearForm()">

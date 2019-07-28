@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Project } from '../../../../shared/types/entities/Project';
@@ -25,6 +25,7 @@ import { Subscription } from 'rxjs';
 
 export class TraMessagesTableComponent implements OnInit, OnChanges {
 
+
 	@Input() selectedRowIndex = -1;
 	@Input() selectedProject: Project;
 	@Input() selectedLocale: string = null;
@@ -44,17 +45,13 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	outdated = false;
 	invalid = false;
 
-	formSubmittedSub: Subscription;
 
-	constructor(private tranFormService: TranFormService) {
+	constructor(private cd: ChangeDetectorRef,
+				private tranFormService: TranFormService) {
 	}
 
 	ngOnInit() {
 		this.getMessages();
-		this.formSubmittedSub = this.tranFormService.formSubmitted$
-		.subscribe((message) => {
-			this.formSubmitted(message);
-		});
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -158,8 +155,9 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 		}
 	}
 
-	private formSubmitted(message: any) {
+	public formSubmitted() {
 		this.showForm = false;
 		this.selectedRowIndex = -1;
+		this.tranFormService.setSelectedMessageId(-1);
 	}
 }

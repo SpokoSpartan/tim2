@@ -29,7 +29,8 @@ export class TraMessagesComponent implements OnInit, OnDestroy {
 	availableLocales: any[] = [];
 
 	submitFormSub: Subscription;
-	content: any;
+
+	selectedRowIndex = -1;
 
 	constructor(private formBuilder: FormBuilder,
 				private cd: ChangeDetectorRef,
@@ -67,6 +68,7 @@ export class TraMessagesComponent implements OnInit, OnDestroy {
 			if (response !== null) {
 				this.getMessagesForTranslator();
 				this.tranFormService.emitFormSubmitted(true);
+				this.selectedRowIndex = -1;
 				this.snackbar.snackSuccess('Success!', 'OK');
 			} else {
 				this.snackbar.snackError('Error', 'OK');
@@ -87,6 +89,7 @@ export class TraMessagesComponent implements OnInit, OnDestroy {
 				this.getMessagesForTranslator();
 				this.tranFormService.emitFormSubmitted(true);
 				this.snackbar.snackSuccess('Success!', 'OK');
+				this.selectedRowIndex = -1;
 			} else {
 				this.snackbar.snackError('Error', 'OK');
 				this.tranFormService.emitFormSubmitted(false);

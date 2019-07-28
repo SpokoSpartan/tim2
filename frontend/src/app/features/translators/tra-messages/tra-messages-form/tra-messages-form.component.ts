@@ -23,14 +23,8 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 	formMode = 'Add';
 	toUpdate: any = null;
 	showForm = false;
-	content: string;
 	isLoadingResults = true;
-	selectedRowIndex = -1;
 
-	selectedProject = null;
-	selectedMessage = null;
-
-	submitFormSub: Subscription;
 	addNewTranslationSub: Subscription;
 	formSubmittedSub: Subscription;
 
@@ -43,7 +37,6 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 				private confirmService: ConfirmationDialogService,
 				private projectStoreService: ProjectsStoreService,
 				private tranFormService: TranFormService) {
-		this.selectedProject = this.projectStoreService.getSelectedProject();
 	}
 
 	ngOnInit() {
@@ -66,17 +59,32 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 	}
 
 	submitForm(translationParams: any) {
-		if (translationParams.value) {
-			this.selectedRowIndex = translationParams.id;
-			this.tranFormService.setContent(translationParams.value.content);
-			this.tranFormService.emitSubmitForm(this.formMode);
-		}
+		this.tranFormService.setContent(translationParams.value.content);
+		this.tranFormService.emitSubmitForm(this.formMode);
 	}
 
-	cancelUpdate() {
-		this.selectedMessage = null;
+
+	addNewTranslation(message: MessageForTranslator) {
+		this.showForm = true;
+	}
+
+	editTranslation(message: MessageForTranslator) {
+		if (this.showForm === false) {
+			this.showForm = true;
+		}
+
+		this.translationParams.patchValue({
+			content: message.translation.content,
+		});
+
+		this.toUpdate = message;
+		this.formMode = 'Update';
+	}
+
+	closeForm() {
+		this.closeFormEvent.emit(null);
+		this.tranFormService.setSelectedMessageId(-1);
 		this.toUpdate = null;
-		this.selectedRowIndex = -1;
 		this.formMode = 'Add';
 		this.showForm = false;
 		this.clearForm();
@@ -90,32 +98,10 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 	}
 
 	private formSubmitted(mode: any) {
-		this.cancelUpdate();
+		this.closeForm();
 	}
 
-	addNewTranslation(message: MessageForTranslator) {
-		this.showForm = true;
-		this.selectedMessage = message;
-		this.selectedRowIndex = message.id;
-	}
-
-	editTranslation(message: MessageForTranslator) {
-		this.selectedMessage = message;
-		this.selectedRowIndex = message.id;
-
-		if (this.showForm === false) {
-			this.showForm = true;
-		}
-
-		this.translationParams.patchValue({
-			content: message.translation.content,
-		});
-
-		this.toUpdate = message;
-		this.formMode = 'Update';
-	}
-
-	ngOnDestroy(): void {
+	ngOnDestroy() {
 		this.addNewTranslationSub.unsubscribe();
 		this.formSubmittedSub.unsubscribe();
 	}
