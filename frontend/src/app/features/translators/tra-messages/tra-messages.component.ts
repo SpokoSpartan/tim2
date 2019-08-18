@@ -29,6 +29,7 @@ export class TraMessagesComponent implements OnInit, OnDestroy {
 	availableLocales: any[] = [];
 
 	submitFormSub: Subscription;
+	invalidateTranslationSub: Subscription;
 
 	selectedRowIndex = -1;
 
@@ -50,6 +51,10 @@ export class TraMessagesComponent implements OnInit, OnDestroy {
 		this.submitFormSub = this.tranFormService.submitForm$
 		.subscribe((mode) => {
 			this.submitForm(mode);
+		});
+		this.invalidateTranslationSub = this.tranFormService.invalidateTranslation$
+		.subscribe((message) => {
+			this.invalidateTranslation(message);
 		});
 	}
 

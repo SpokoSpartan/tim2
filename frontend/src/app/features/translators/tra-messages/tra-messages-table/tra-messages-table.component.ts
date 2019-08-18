@@ -1,11 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Project } from '../../../../shared/types/entities/Project';
 import { Message } from '../../../../shared/types/entities/Message';
 import { MessageForTranslator } from '../../../../shared/types/DTOs/output/MessageForTranslator';
 import { TranFormService } from '../tra-form-service/tran-form.service';
-import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-tra-messages-table',
@@ -30,7 +29,6 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 	@Input() selectedProject: Project;
 	@Input() selectedLocale: string = null;
 	@Input() messages: Message[] = [];
-	@Output() invalidateTranslationEvent = new EventEmitter<any>();
 
 	// table
 	@ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -76,13 +74,15 @@ export class TraMessagesTableComponent implements OnInit, OnChanges {
 
 	updateTranslation(message: MessageForTranslator) {
 		this.showForm = true;
+		this.selectedRowIndex = message.id;
+		this.tranFormService.formMode = 'Update';
 		this.tranFormService.setSelectedMessageId(message.id);
 		this.tranFormService.setSelectedTranslationId(message.translation.id);
-		this.selectedRowIndex = message.id;
+		this.tranFormService.emitUpdateTranslation(message);
 	}
 
 	async invalidateTranslation(message: MessageForTranslator) {
-		this.invalidateTranslationEvent.emit(message);
+		this.tranFormService.emitInvalidateTranslation(message);
 	}
 
 	cancelForm() {

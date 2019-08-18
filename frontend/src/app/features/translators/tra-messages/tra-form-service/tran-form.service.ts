@@ -14,9 +14,15 @@ export class TranFormService {
 	formSubmitted$ = this.submitFormSubject.asObservable();
 	private addTranslationSubject = new ReplaySubject<MessageForTranslator>();
 	addTranslation$ = this.addTranslationSubject.asObservable();
+	private updateTranslationSubject = new ReplaySubject<MessageForTranslator>();
+	updateTranslation$ = this.updateTranslationSubject.asObservable();
+	private invalidateTranslationSubject = new ReplaySubject<MessageForTranslator>();
+	invalidateTranslation$ = this.invalidateTranslationSubject.asObservable();
+
 
 	selectedMessageId = -1;
 	selectedTranslationId = -1;
+	formMode = 'Add';
 
 	// form params
 	content = '';
@@ -39,6 +45,16 @@ export class TranFormService {
 	public emitAddTranslation(message) {
 		this.addTranslationSubject.next(message);
 	}
+
+	public emitUpdateTranslation(message) {
+		this.updateTranslationSubject.next(message);
+	}
+
+	public emitInvalidateTranslation(message) {
+		this.invalidateTranslationSubject.next(message);
+	}
+
+	// states
 
 	public setSelectedTranslationId(id: number) {
 		this.selectedTranslationId = id;

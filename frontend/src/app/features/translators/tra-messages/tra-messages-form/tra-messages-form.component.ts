@@ -26,6 +26,7 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 	isLoadingResults = true;
 
 	addNewTranslationSub: Subscription;
+	updateTranslationSub: Subscription;
 	formSubmittedSub: Subscription;
 
 	constructor(private formBuilder: FormBuilder,
@@ -45,9 +46,13 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 		.subscribe((message) => {
 			this.addNewTranslation(message);
 		});
+		this.updateTranslationSub = this.tranFormService.updateTranslation$
+		.subscribe((message) => {
+			this.editTranslation(message);
+		});
 		this.formSubmittedSub = this.tranFormService.formSubmitted$
 		.subscribe((message) => {
-			this.formSubmitted(message);
+			this.closeForm();
 		});
 	}
 
@@ -65,20 +70,21 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 
 
 	addNewTranslation(message: MessageForTranslator) {
+		// TODO: when clicking update, and then Add in other row, button stays at "Update" state
+		this.formMode = 'Add';
 		this.showForm = true;
+		this.cd.markForCheck();
 	}
 
 	editTranslation(message: MessageForTranslator) {
-		if (this.showForm === false) {
-			this.showForm = true;
-		}
+		this.formMode = 'Update';
+		this.showForm = true;
+		this.toUpdate = message;
+		this.cd.markForCheck();
 
 		this.translationParams.patchValue({
 			content: message.translation.content,
 		});
-
-		this.toUpdate = message;
-		this.formMode = 'Update';
 	}
 
 	closeForm() {
@@ -95,10 +101,6 @@ export class TraMessagesFormComponent implements OnInit, OnDestroy {
 		this.translationParams.markAsPristine();
 		this.translationParams.markAsUntouched();
 		this.cd.markForCheck();
-	}
-
-	private formSubmitted(mode: any) {
-		this.closeForm();
 	}
 
 	ngOnDestroy() {

@@ -126,7 +126,7 @@
 
 						</p>
 						<div>
-							<app-tra-messages-form (closeFormEvent)="formSubmitted()"  *ngIf="showForm && this.selectedRowIndex === message.id"></app-tra-messages-form>
+							<app-tra-messages-form (closeFormEvent)="formSubmitted()" *ngIf="showForm && this.selectedRowIndex === message.id"></app-tra-messages-form>
 						</div>
 						<button mat-button (click)="updateTranslation(message)" *ngIf="selectedLocale && message.translation" matTooltip="Update translation" matTooltipClass="tooltip-font">
 							<mat-icon>update</mat-icon>
